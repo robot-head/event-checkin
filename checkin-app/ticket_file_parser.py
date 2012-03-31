@@ -26,7 +26,7 @@ class CsvTicketFileParser(TicketFileParser):
     for row in reader:
       key = row[self.key_position]
       ticket = model.Ticket(
-          code=key, event=self.event, status=constants.STATUS.UNCLAIMED,
+          code=key, event=self.event, claim_count=0,
           descriptor=json.dumps(row))
       ticket.put()
       
