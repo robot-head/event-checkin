@@ -1,0 +1,44 @@
+<html>
+<head>
+  <title>Checkin Application</title>
+</head>
+  <body>
+    <p>Result of check in:<p>
+    {% if error %}
+    <p>An error occurred. {{ error }}</p>
+    <form action="/event/{{ event.key().id() }}/ticket/mark" method="POST">
+    <p>Force a check-in anyway: 
+    <input type="submit">
+    <input type="hidden" name="code" value={{ ticket.code }}>
+    <input type="hidden" name="force" value="true">
+    </form></p>
+    {% else %}
+    <p>Ticket accepted.</p>
+    <form action="/event/{{ event.key().id() }}/ticket/unmark" method="POST">
+    <p>Oops! This was a mistake: 
+    <input type="submit">
+    <input type="hidden" name="code" value={{ ticket.code }}>
+    </form>
+    {% endif %}
+    {% if ticket %}
+    <p>Ticket code: {{ ticket.code }}</p>
+    <p>Ticket scans: {{ ticket.claim_count }}</p>
+    <p>Ticket descriptor</p>
+    <ul>
+    {% for header in headers %}
+      <li>{{ header }}: {{ descriptor[loop.index0] }}</li>
+    {% endfor %}
+    </ul>
+    <p>
+    {% endif %}
+    {% if log %}
+      <p>Log of this ticket:</p>
+      <ul>
+         {% for event in log %}
+         <li>From: {{ event.old_count }}, To: {{ event.new_count }} at {{ event.timestamp }}</li>
+         {% endfor %}
+      </ul>
+    {% endif %}
+    <a href="/event/{{ event.key().id() }}">Go Back</a>
+  </body>
+</html>
