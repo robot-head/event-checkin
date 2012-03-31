@@ -1,5 +1,4 @@
 import csv
-import constants
 import json
 import model
 

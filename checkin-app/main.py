@@ -1,7 +1,6 @@
 from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.ext.webapp import blobstore_handlers
-import constants
 import logging
 import jinja2
 import json
