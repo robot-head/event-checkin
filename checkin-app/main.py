@@ -1,3 +1,4 @@
+from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.ext.webapp import blobstore_handlers
@@ -15,35 +16,43 @@ jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 
+class Error(Exception):
+  pass
+
+
+class NoEventError(Error):
+  pass
+
+
 class TemplateBasedHandler(webapp2.RequestHandler):
-  
+
   template_basepath = 'templates'
   request_template_paths = {
       'get': 'foo.html',
       'post': 'foo_results.html'}
-  
+
   def _GetTemplatePath(self, method):
     return os.path.join(
         self.template_basepath, self.request_template_paths[method])
-  
+
   def _ProcessRequest(self, method, *args, **kwargs):
     template = jinja_environment.get_template(self._GetTemplatePath(method))
     ctx = self.CreateContext(method, *args, **kwargs)
     self.response.out.write(template.render(ctx, *args, **kwargs))
-  
+
   def get(self, *args, **kwargs):
     self._ProcessRequest('get', *args, **kwargs)
-  
+
   def post(self, *args, **kwargs):
     self._ProcessRequest('post', *args, **kwargs)
-    
+
   def CreateContext(self, method, *args, **kwargs):
     """Should return a dictionary with context for the template."""
     return {}
 
 
 class FileUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
-  
+
   def post(self, event_id):
     event = model.Event.get_by_id(int(event_id))
     upload_files = self.get_uploads('file')
@@ -55,10 +64,10 @@ class FileUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
 
 class TicketUnmarkHandler(TemplateBasedHandler):
-  
+
   request_template_paths = {
       'post': 'ticket_unmark_results.html'}
-  
+
   def DecrementClaimCount(self):
     def transaction():
       new_count = self.ticket.claim_count - 1
@@ -89,7 +98,7 @@ class TicketUnmarkHandler(TemplateBasedHandler):
     log_query.filter('ticket =', self.ticket)
     log_query.order('timestamp')
     return log_query.fetch(100)
-    
+
   def CreateContext(self, method, event_id):
     code = self.request.get('code')
     self.event = model.Event.get_by_id(int(event_id))
@@ -114,12 +123,12 @@ class TicketUnmarkHandler(TemplateBasedHandler):
         'ticket': self.ticket,
         'headers': headers,
         'descriptor': descriptor}
-    
+
 class TicketMarkHandler(TemplateBasedHandler):
-  
+
   request_template_paths = {
       'post': 'ticket_mark_results.html'}
-  
+
   class Error(Exception): pass
   class TicketValidationError(Error): pass
   class TicketFindError(Error): pass
@@ -128,7 +137,7 @@ class TicketMarkHandler(TemplateBasedHandler):
     if self.ticket.claim_count > 0:
       if not force_checkin:
         raise self.TicketValidationError('Ticket already claimed')
-  
+
   def IncrementClaimCount(self):
     def transaction():
       new_count = self.ticket.claim_count + 1
@@ -143,7 +152,7 @@ class TicketMarkHandler(TemplateBasedHandler):
     db.run_in_transaction_options(xg_on, transaction)
     """
     transaction()
-    
+
   def GetTicket(self, code):
     query = db.Query(model.Ticket)
     query.filter('code =', code)
@@ -159,7 +168,7 @@ class TicketMarkHandler(TemplateBasedHandler):
     log_query.filter('ticket =', self.ticket)
     log_query.order('timestamp')
     return log_query.fetch(100)
-    
+
   def CreateContext(self, method, event_id):
     code = self.request.get('code')
     force_checkin = self.request.get('force')
@@ -201,10 +210,10 @@ class TicketMarkHandler(TemplateBasedHandler):
 
 
 class EventMainPage(TemplateBasedHandler):
-  
+
   request_template_paths = {
       'get': 'event_index.html'}
-  
+
 
   def GetNumberOfTicketsWithScans(self, event, count):
     query = db.Query(model.Ticket)
@@ -236,9 +245,24 @@ class EventMainPage(TemplateBasedHandler):
         'upload_url': upload_url
         }
 
+class EventCsvUpload(TemplateBasedHandler):
+
+  request_template_paths = {
+      'get': 'event_csv_upload.html'}
+
+  def CreateContext(self, method, event_id):
+    event = model.Event.get_by_id(int(event_id))
+
+    if not event:
+      raise NoEventError
+
+    upload_url = blobstore.create_upload_url('/event/upload/%s' % event_id)
+    return {
+        'event': event,
+        'upload_url': upload_url}
 
 class EventCreationHandler(webapp2.RequestHandler):
-  
+
   def post(self):
     event_name = self.request.get('name')
     if event_name:
@@ -248,12 +272,12 @@ class EventCreationHandler(webapp2.RequestHandler):
 
 
 class MainPage(TemplateBasedHandler):
-  
+
   def CreateContext(self, method):
     event_list = model.Event.all()
     return {
         'events': event_list }
-  
+
   request_template_paths = {
       'get': 'index.html'}
 
@@ -265,6 +289,9 @@ app = webapp2.WSGIApplication([
     webapp2.Route(
         r'/event/upload/<event_id:\d+>', handler=FileUploadHandler,
         name='upload'),
+    webapp2.Route(
+        r'/admin/event/<event_id:\d+>/csv_upload', handler=EventCsvUpload,
+        name='event_csv_upload'),
     webapp2.Route(
         r'/event/<event_id:\d+>/ticket/mark',
         handler=TicketMarkHandler, name='mark'),

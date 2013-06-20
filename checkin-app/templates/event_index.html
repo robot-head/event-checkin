@@ -1,23 +1,20 @@
 <html>
 <head>
-  <title>Checkin Application</title>
+  <title>Ticket check-in form for {{event.name}}</title>
 </head>
   <body>
-    <p>Event: {{ event.name }}</p>
-    <p>Number of tickets issued: {{ num_tickets }}</p>
-    <p>Number of tickets with the following status:<p?
+    <p>Event: <b>{{ event.name }}</b></p>
+    <p>Number of tickets issued: <b>{{ num_tickets }}</b></p>
+    <p>Tickets with the following number of scans:</p>
     <ul>
       {% for ticket_entry in ticket_state_map %}
-      <li>{{ ticket_entry }}: {{ ticket_state_map[ticket_entry]}}</li>
+      <li><b>{{ ticket_entry }}</b> scans: {{ ticket_state_map[ticket_entry]}}</li>
       {% endfor %}
     </ul>
     <form action="/event/{{ event.key().id() }}/ticket/mark" method="POST">
-      <p>Enter ticket code: <input type="text" name="code"><input type="submit">
-    </form>
-    <p>Add tickets:</p>
-    <form action={{ upload_url }} method="POST" enctype="multipart/form-data">
-      Upload File: <input type="file" name="file"><br>
-      <input type="submit" name="submit" value="Submit">
+      <p>Enter ticket code:
+         <input type="text" name="code">
+         <input type="submit" value="Check In!">
     </form>
   </body>
 </html>
