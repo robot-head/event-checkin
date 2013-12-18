@@ -1,18 +1,18 @@
 <html>
 <head>
-  <title>Ticket check-in form for {{event.name}}</title>
+  <title>Invite check-in form for {{event.name}}</title>
 </head>
   <body>
     <p>Event: <b>{{ event.name }}</b></p>
-    <p>Number of tickets issued: <b>{{ num_tickets }}</b></p>
-    <p>Tickets with the following number of scans:</p>
+    <p>Number of invites issued: <b>{{ num_tickets }}</b></p>
+    <p>Invites with the following number of scans:</p>
     <ul>
       {% for ticket_entry in ticket_state_map %}
       <li><b>{{ ticket_entry }}</b> scans: {{ ticket_state_map[ticket_entry]}}</li>
       {% endfor %}
     </ul>
     <form action="/event/{{ event.key().id() }}/ticket/mark" method="POST">
-      <p>Enter ticket code:
+      <p>Enter invite code:
          <input type="text" name="code">
          <input type="submit" value="Check In!">
     </form>

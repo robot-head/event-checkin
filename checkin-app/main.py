@@ -89,7 +89,7 @@ class TicketUnmarkHandler(TemplateBasedHandler):
     query.filter('event =', self.event)
     if (query.count() != 1):
       raise self.TicketFindError(
-          '%d tickets found instead of 1 for code %s' % (query.count(), code))
+          '%d invites found instead of 1 for code %s' % (query.count(), code))
     return query.get()
 
   def GetLog(self):
@@ -136,7 +136,7 @@ class TicketMarkHandler(TemplateBasedHandler):
   def ValidateTicket(self, force_checkin=False):
     if self.ticket.claim_count > 0:
       if not force_checkin:
-        raise self.TicketValidationError('Ticket already claimed')
+        raise self.TicketValidationError('Invite already claimed')
 
   def IncrementClaimCount(self):
     def transaction():
@@ -159,7 +159,7 @@ class TicketMarkHandler(TemplateBasedHandler):
     query.filter('event =', self.event)
     if (query.count() != 1):
       raise self.TicketFindError(
-          '%d tickets found instead of 1 for code %s' % (query.count(), code))
+          '%d invites found instead of 1 for code %s' % (query.count(), code))
     return query.get()
 
   def GetLog(self):

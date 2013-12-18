@@ -13,7 +13,7 @@
     <input type="hidden" name="force" value="true">
     </form></p>
     {% else %}
-    <p>Ticket accepted.</p>
+    <p>Invite accepted.</p>
     <form action="/event/{{ event.key().id() }}/ticket/unmark" method="POST">
     <p>Oops! This was a mistake: 
     <input type="submit">
@@ -21,9 +21,9 @@
     </form>
     {% endif %}
     {% if ticket %}
-    <p>Ticket code: {{ ticket.code }}</p>
-    <p>Ticket scans: {{ ticket.claim_count }}</p>
-    <p>Ticket descriptor</p>
+    <p>Invite code: {{ ticket.code }}</p>
+    <p>Invite scans: {{ ticket.claim_count }}</p>
+    <p>Invite descriptor</p>
     <ul>
     {% for header in headers %}
       <li>{{ header }}: {{ descriptor[loop.index0] }}</li>
@@ -32,7 +32,7 @@
     <p>
     {% endif %}
     {% if log %}
-      <p>Log of this ticket:</p>
+      <p>Log of this invite:</p>
       <ul>
          {% for event in log %}
          <li>From: {{ event.old_count }}, To: {{ event.new_count }} at {{ event.timestamp }}</li>

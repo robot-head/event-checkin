@@ -1,10 +1,10 @@
 <html>
   <head>
-    <title>Ticket check-in form for {{event.name}}</title>
+    <title>Invite check-in form for {{event.name}}</title>
   </head>
   <body>
     <p>Event: <b>{{ event.name }}</b></p>
-    <p>Add tickets:</p>
+    <p>Add invites:</p>
     <form action={{ upload_url }} method="POST" enctype="multipart/form-data">
       Upload File: <input type="file" name="file"><br>
       <input type="submit" name="submit" value="Submit">
