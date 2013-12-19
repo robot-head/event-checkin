@@ -1,32 +1,52 @@
 <html>
 <head>
   <title>Checkin Application</title>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
   <body>
-    <p>Result of check in:<p>
+  <div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Result of check in:</h3>
+  </div>
+  <div class="panel-body">
     {% if error %}
-    <p>An error occurred. {{ error }}</p>
+    <div class="alert alert-danger">An error occurred. {{ error }}</div>
     {% endif %}
-    <p>Invite state reverted!</p>
+    <div class="alert alert-success">Invite state reverted!</div>
+    <button type="button" class="btn btn-primary" onclick="location.href='/event/{{ event.key().id() }}';">Enter Another Code</button>
     {% if ticket %}
+    <div class="panel panel-default">
+  <div class="panel-heading">Invite info</div>
+  <div class="panel-body">
     <p>Invite code: {{ ticket.code }}</p>
     <p>Invite scans: {{ ticket.claim_count }}</p>
     <p>Invite descriptor</p>
-    <ul>
+    <ul class="list-group">
     {% for header in headers %}
-      <li>{{ header }}: {{ descriptor[loop.index0] }}</li>
+      <li class="list-group-item">{{ header }}: {{ descriptor[loop.index0] }}</li>
     {% endfor %}
     </ul>
     <p>
     {% endif %}
     {% if log %}
       <p>Log of this invite:</p>
-      <ul>
+      <ul class="list-group">
          {% for event in log %}
-         <li>From: {{ event.old_count }}, To: {{ event.new_count }} at {{ event.timestamp }}</li>
+         <li class="list-group-item">From: {{ event.old_count }}, To: {{ event.new_count }} at {{ event.timestamp }}</li>
          {% endfor %}
       </ul>
     {% endif %}
-    <a href="/event/{{ event.key().id() }}">Go Back</a>
+    </div>
+    </div>
+    </div>
   </body>
 </html>

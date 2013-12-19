@@ -1,20 +1,40 @@
 <html>
 <head>
   <title>Invite check-in form for {{event.name}}</title>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
   <body>
-    <p>Event: <b>{{ event.name }}</b></p>
+  	<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Event: {{ event.name }}</h3>
+  </div>
+  <div class="panel-body">
     <p>Number of invites issued: <b>{{ num_tickets }}</b></p>
     <p>Invites with the following number of scans:</p>
-    <ul>
+    <ul class="list-group">
       {% for ticket_entry in ticket_state_map %}
-      <li><b>{{ ticket_entry }}</b> scans: {{ ticket_state_map[ticket_entry]}}</li>
+      <li class="list-group-item">
+        <span class="badge">{{ ticket_state_map[ticket_entry]}}</span>
+        {{ ticket_entry }}
+      </li>
       {% endfor %}
     </ul>
     <form action="/event/{{ event.key().id() }}/ticket/mark" method="POST">
       <p>Enter invite code:
-         <input type="text" name="code">
+         <input type="number" name="code">
          <input type="submit" value="Check In!">
     </form>
+      </div>
+</div>   
+    
   </body>
 </html>
