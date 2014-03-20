@@ -1,7 +1,9 @@
 import csv
 import json
+import logging
 import model
 
+from google.appengine.ext import db
 
 class Error(Exception): pass
 class DuplicateTicketError(Error): pass
@@ -23,6 +25,7 @@ class CsvTicketFileParser(TicketFileParser):
   key_position = 1
   _keys = []
   _rowlen = 0
+  _dupkeys = []
   
   def Parse(self):
     reader = csv.reader(self.ticket_file)
@@ -37,10 +40,12 @@ class CsvTicketFileParser(TicketFileParser):
                 self._rowlen, len(row), row))
       key = row[self.key_position]
       if key in self._keys:
-        raise DuplicateTicketError
+        self._dupkeys.append(key)
+        continue
       self._keys.append(key)
       ticket = model.Ticket(
           code=key, event=self.event, claim_count=0,
           descriptor=json.dumps(row))
-      ticket.put()
+      db.put_async(ticket)
+    logging.warning('Found the following duplicate keys: %s' % (self._dupkeys))
       
