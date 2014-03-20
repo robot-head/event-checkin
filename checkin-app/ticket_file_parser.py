@@ -21,10 +21,8 @@ class TicketFileParser(object):
 class CsvTicketFileParser(TicketFileParser):
   
   key_position = 1
-  
-  def __init__(self):
-    self._keys = []
-    self._rowlen = 0
+  _keys = []
+  _rowlen = 0
   
   def Parse(self):
     reader = csv.reader(self.ticket_file)
