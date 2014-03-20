@@ -26,9 +26,13 @@
       </li>
     {% endfor %}
     </ul>
+    {% if admin %}
     <form action="/event/new" method="POST">
     Event Name: <input type="text" name="name"> <input type="submit" name="submit">
     </form>
+    {% else %}
+    <a href="{{login_url}}">Log in to create an event</a>
+    {% endif %}
 	  </div>
 	</div>
     
