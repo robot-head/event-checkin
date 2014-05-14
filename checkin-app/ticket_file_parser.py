@@ -37,7 +37,7 @@ class CsvTicketFileParser(TicketFileParser):
                 self._rowlen, len(row), row))
       key = row[self.key_position]
       if key in self._keys:
-        raise DuplicateTicketError
+        raise DuplicateTicketError('Already seen key %s' % key)
       self._keys.append(key)
       ticket = model.Ticket(
           code=key, event=self.event, claim_count=0,
