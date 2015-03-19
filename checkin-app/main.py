@@ -276,7 +276,9 @@ class MainPage(TemplateBasedHandler):
   def CreateContext(self, method):
     event_list = model.Event.all()
     return {
-        'events': event_list }
+        'events': event_list,
+        'admin': users.is_current_user_admin(),
+        'login_url': users.create_login_url('/') }
 
   request_template_paths = {
       'get': 'index.html'}

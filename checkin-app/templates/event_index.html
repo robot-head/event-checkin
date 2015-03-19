@@ -30,7 +30,7 @@
     </ul>
     <form action="/event/{{ event.key().id() }}/ticket/mark" method="POST">
       <p>Enter invite code:
-         <input type="text" pattern="\d*" name="code">
+         <input type="tel" name="code">
          <button type="submit" class="btn btn-primary">Check In!</button>
     </form>
       </div>
