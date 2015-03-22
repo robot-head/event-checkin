@@ -216,27 +216,27 @@ class EventMainPage(TemplateBasedHandler):
 
 
   def GetNumberOfTicketsWithScans(self, event, count):
-    query = db.Query(model.Ticket)
+    query = db.Query(model.Ticket, keys_only=True)
     query.filter('claim_count =', count)
     query.filter('event =', event)
-    tickets = query.count()
+    tickets = query.count(limit=2000)
     return tickets
 
   def CreateContext(self, method, event_id):
     event = model.Event.get_by_id(int(event_id))
     ticket_query = db.Query(model.Ticket)
     ticket_query.filter('event =', event)
-    num_tickets = ticket_query.count()
+    num_tickets = ticket_query.count(limit=2000)
     first_10_tickets = ticket_query.fetch(limit=10)
     ticket_count_map = {}
     upload_url = blobstore.create_upload_url('/event/upload/%s' % event_id)
     for count in [0, 1]:
       tickets = self.GetNumberOfTicketsWithScans(event, count)
       ticket_count_map[str(count)] = tickets
-    query = db.Query(model.Ticket)
+    query = db.Query(model.Ticket, keys_only=True)
     query.filter('claim_count >', 1)
     query.filter('event =', event)
-    ticket_count_map['>1'] = query.count()
+    ticket_count_map['>1'] = query.count(limit=2000)
     return {
         'event': event,
         'tickets': first_10_tickets,

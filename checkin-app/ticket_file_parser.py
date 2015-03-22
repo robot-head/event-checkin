@@ -28,6 +28,7 @@ class CsvTicketFileParser(TicketFileParser):
   _dupkeys = []
   
   def Parse(self):
+    rows = 0
     reader = csv.reader(self.ticket_file)
     header = reader.next()
     self._rowlen = len(header)
@@ -47,5 +48,7 @@ class CsvTicketFileParser(TicketFileParser):
           code=key, event=self.event, claim_count=0,
           descriptor=json.dumps(row))
       db.put_async(ticket)
-    logging.warning('Found the following duplicate keys: %s' % (self._dupkeys))
+    logging.info('Created %s tickets: ' % (len(self._keys)))
+    if (self._dupkeys):
+      logging.warning('Found the following duplicate keys: %s' % (self._dupkeys))
       
