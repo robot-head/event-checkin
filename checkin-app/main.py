@@ -30,7 +30,7 @@ class CsvDownloadHandler(webapp2.RequestHandler):
   def get(self, event_id):
     event = model.Event.get_by_id(int(event_id))
     self.response.headers['Content-Type'] = 'application/csv'
-    self.response.headers['Content-Disposition'] = 'attachment; filename=%s_checkin_data.csv' % (event.name)
+    self.response.headers['Content-Disposition'] = str('attachment; filename=%s_checkin_data.csv' % (event.name))
     writer = csv.writer(self.response.out)
 
     log_query = db.Query(model.EventLog)
