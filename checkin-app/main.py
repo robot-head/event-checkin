@@ -2,6 +2,7 @@ from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.ext.webapp import blobstore_handlers
+import csv
 import logging
 import jinja2
 import json
@@ -22,6 +23,22 @@ class Error(Exception):
 
 class NoEventError(Error):
   pass
+
+
+class CsvDownloadHandler(webapp2.RequestHandler):
+
+  def get(self, event_id):
+    event = model.Event.get_by_id(int(event_id))
+    self.response.headers['Content-Type'] = 'application/csv'
+    self.response.headers['Content-Disposition'] = 'attachment; filename=%s_checkin_data.csv' % (event.name)
+    writer = csv.writer(self.response.out)
+
+    log_query = db.Query(model.EventLog)
+    log_query.filter('event = ', event)
+    log_query.order('timestamp')
+    writer.writerow(["invite_code", "timestamp"])
+    for log in log_query.run(limit=2000):
+      writer.writerow([log.ticket.code, log.timestamp])
 
 
 class TemplateBasedHandler(webapp2.RequestHandler):
@@ -288,6 +305,9 @@ app = webapp2.WSGIApplication([
     webapp2.Route(r'/', handler=MainPage, name='home'),
     webapp2.Route(
         r'/event/<event_id:\d+>', handler=EventMainPage, name='event'),
+    webapp2.Route(
+        r'/event/<event_id:\d+>/download', handler=CsvDownloadHandler,
+        name='event_download'),
     webapp2.Route(
         r'/event/upload/<event_id:\d+>', handler=FileUploadHandler,
         name='upload'),

@@ -16,6 +16,11 @@ indexes:
   - name: ticket
   - name: timestamp
 
+- kind: EventLog
+  properties:
+  - name: event
+  - name: timestamp
+
 - kind: Ticket
   properties:
   - name: event
