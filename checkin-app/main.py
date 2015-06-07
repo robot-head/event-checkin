@@ -1,15 +1,22 @@
+# Appengine
 from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.ext.webapp import blobstore_handlers
+
+# Standard library
 import csv
 import logging
-import jinja2
 import json
-import model
 import os
+
+# From this project
+import model
 import ticket_file_parser
+
+# From app.yaml modules
 import webapp2
+import jinja2
 from django.core.files.uploadhandler import FileUploadHandler
 
 
@@ -232,9 +239,9 @@ class EventMainPage(TemplateBasedHandler):
       'get': 'event_index.html'}
 
 
-  def GetNumberOfTicketsWithScans(self, event, count):
+  def GetNumberOfTicketsWithScans(self, event, count, operator):
     query = db.Query(model.Ticket, keys_only=True)
-    query.filter('claim_count =', count)
+    query.filter('claim_count %s' % operator, count)
     query.filter('event =', event)
     tickets = query.count(limit=2000)
     return tickets
@@ -247,13 +254,10 @@ class EventMainPage(TemplateBasedHandler):
     first_10_tickets = ticket_query.fetch(limit=10)
     ticket_count_map = {}
     upload_url = blobstore.create_upload_url('/event/upload/%s' % event_id)
-    for count in [0, 1]:
-      tickets = self.GetNumberOfTicketsWithScans(event, count)
-      ticket_count_map[str(count)] = tickets
-    query = db.Query(model.Ticket, keys_only=True)
-    query.filter('claim_count >', 1)
-    query.filter('event =', event)
-    ticket_count_map['>1'] = query.count(limit=2000)
+    for operator, count in [('=', 0), ('=',1), ('>', 1)]:
+      tickets = self.GetNumberOfTicketsWithScans(event, count, operator)
+      ticket_count_map['%s%d' % (operator, count)] = tickets
+    
     return {
         'event': event,
         'tickets': first_10_tickets,
@@ -278,6 +282,7 @@ class EventCsvUpload(TemplateBasedHandler):
         'event': event,
         'upload_url': upload_url}
 
+
 class EventCreationHandler(webapp2.RequestHandler):
 
   def post(self):
@@ -290,15 +295,17 @@ class EventCreationHandler(webapp2.RequestHandler):
 
 class MainPage(TemplateBasedHandler):
 
+  request_template_paths = {
+      'get': 'index.html'}
+      
   def CreateContext(self, method):
     event_list = model.Event.all()
     return {
         'events': event_list,
         'admin': users.is_current_user_admin(),
         'login_url': users.create_login_url('/') }
-
-  request_template_paths = {
-      'get': 'index.html'}
+  
+  
 
 
 app = webapp2.WSGIApplication([
